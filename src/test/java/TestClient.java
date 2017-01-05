@@ -8,6 +8,7 @@ public class TestClient {
 
     @Test
     public void test2() {
-
+        Client c = new Client();
+        c.init();
     }
 }
