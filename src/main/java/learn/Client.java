@@ -35,15 +35,12 @@ public class Client {
                     }
                     loop = false;
                 }
-                Thread.currentThread().sleep(50);
             }
 
             System.out.println(sb.toString());
             socket.close();
         } catch(IOException e) {
             e.printStackTrace();
-        } catch (InterruptedException s) {
-            s.printStackTrace();
         }
     }
 }
