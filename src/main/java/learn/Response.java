@@ -9,7 +9,7 @@ import java.net.Socket;
 public class Response {
     private Request request;
     private OutputStream outputStream;
-    private static final String WEB_ROOT = "/home/m/backup";
+    private static final String WEB_ROOT = "E:\\files";
 
     public Response(OutputStream outputStream) {
         this.outputStream = outputStream;
@@ -22,26 +22,26 @@ public class Response {
     public void sendResponse() throws IOException {
         try {
             File file = new File(WEB_ROOT, request.getUri());
+            String response = "";
+
             if(file.exists()) {
                 BufferedReader br = new BufferedReader(new FileReader(file));
-                PrintWriter pr = new PrintWriter(outputStream);
 
                 String s;
                 while ((s = br.readLine()) != null)
-                    pr.println(s);
+                    response += s + "\n";
 
                 br.close();
             } else {
-                String errorMessage = "HTTP/1.1 404 File Not Found\r\n" +
+                response = "HTTP/1.1 404 File Not Found\r\n" +
                         "Content-Type: text/html\r\n" +
                         "Content-Length: 23\r\n" +
                         "\r\n" +
                         "<h1>File Not Found</h1>";
-                outputStream.write(errorMessage.getBytes());
             }
+            outputStream.write(response.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

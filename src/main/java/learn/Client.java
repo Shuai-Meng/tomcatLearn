@@ -7,31 +7,33 @@ import java.net.Socket;
  * Created by m on 16-12-25.
  */
 public class Client {
+    private String host;
+    private int port;
+    private String uri;
     private Socket socket = null;
 
     public Client(String host, int port) {
-        try {
-            socket = new Socket(host, port);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        this.host = host;
+        this.port = port;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public void sendRequest() {
         try {
+            socket = new Socket(host, port);
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            out.println("GET /index.jsp HTTP/1.1");
-            out.println("Host: localhost:8080");
+            out.println("GET " + uri + " HTTP/1.1");
+            out.println("Host: " + host + ":" + port);
             out.println("Connection: Close");
             out.println();
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void handleResponse() {
-        try {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             boolean loop = true;
             StringBuffer sb = new StringBuffer(8096);
@@ -47,10 +49,12 @@ public class Client {
                 }
             }
 
+            in.close();
             System.out.println(sb.toString());
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 }

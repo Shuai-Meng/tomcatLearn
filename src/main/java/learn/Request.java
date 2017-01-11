@@ -36,7 +36,7 @@ public class Request {
         String request = sb.toString();
         int firstSpace = request.indexOf(" ");
         if(firstSpace > -1) {
-            int secondSpace = request.indexOf("", firstSpace);
+            int secondSpace = request.indexOf(" ", firstSpace + 1);
             if(secondSpace > firstSpace) {
                 uri = request.substring(firstSpace + 1, secondSpace);
                 return;

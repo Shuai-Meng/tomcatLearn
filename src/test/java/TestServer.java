@@ -5,10 +5,11 @@ import org.junit.Test;
  * Created by m on 17-1-8.
  */
 public class TestServer {
-    Server server = new Server(8080);
+    private Server server;
 
     @Test
     public void testServer() {
+        server = new Server(8080);
         server.await();
     }
 }

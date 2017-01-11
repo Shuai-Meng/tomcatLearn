@@ -9,7 +9,6 @@ import java.net.*;
 public class Server {
     private ServerSocket serverSocket;
     private Socket socket;
-    private boolean shutdown = false;
 
     public Server(int port) {
         try {
@@ -21,18 +20,23 @@ public class Server {
     }
 
     public void await() {
-        while(!shutdown) {
+        while(true) {
             try {
                 socket = serverSocket.accept();
                 Request request = new Request(socket.getInputStream());
                 request.parse();
 
-                Response response = new Response(socket.getOutputStream());
-                response.setRequest(request);
-                response.sendResponse();
+                if(request.getUri().equals("/SHUT_DOWN")) {
+                    socket.close();
+                    return;
+                }
+                else {
+                    Response response = new Response(socket.getOutputStream());
+                    response.setRequest(request);
+                    response.sendResponse();
 
-                socket.close();
-                shutdown = request.getUri().equals("SHUT_DOWN");
+                    socket.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 continue;
