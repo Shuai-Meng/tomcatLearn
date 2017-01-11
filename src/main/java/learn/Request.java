@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created by shuaimeng2 on 2017/1/6.
+ * Created by m on 17-1-7.
  */
 public class Request {
-    private String uri;
     private InputStream inputStream;
+    private String uri;
 
     public Request(InputStream inputStream) {
         this.inputStream = inputStream;
@@ -19,26 +19,26 @@ public class Request {
     }
 
     public void parse() {
+        StringBuffer sb = new StringBuffer(2048);
         byte[] buffer = new byte[2048];
-        int i = 0;
+        int i;
 
         try {
             i = inputStream.read(buffer);
-        } catch (IOException e) {
+        } catch(IOException e) {
             i = -1;
             e.printStackTrace();
         }
 
-        StringBuffer sb = new StringBuffer(2048);
         for(int j = 0; j < i; j++)
-            sb.append(buffer[j]);
+            sb.append((char) buffer[j]);
 
         String request = sb.toString();
-        int first = request.indexOf(" ");
-        if(first != -1) {
-            int second = request.indexOf(" ", first);
-            if(second > first) {
-                uri = request.substring(first + 1, second);
+        int firstSpace = request.indexOf(" ");
+        if(firstSpace > -1) {
+            int secondSpace = request.indexOf("", firstSpace);
+            if(secondSpace > firstSpace) {
+                uri = request.substring(firstSpace + 1, secondSpace);
                 return;
             }
         }
