@@ -25,17 +25,26 @@ public class Server {
                 socket = serverSocket.accept();
                 Request request = new Request(socket.getInputStream());
                 request.parse();
+                Response response = new Response(socket.getOutputStream());
+                response.setRequest(request);
 
-                if(request.getUri().equals("/SHUT_DOWN")) {
+                String uri = request.getUri();
+                if(uri.equals("/SHUT_DOWN")) {
                     socket.close();
                     return;
-                }
-                else {
-                    Response response = new Response(socket.getOutputStream());
-                    response.setRequest(request);
+                } else if(uri.startsWith("/static")){
                     response.sendResponse();
-
                     socket.close();
+                } else if(uri.startsWith("/servlet")) {
+                    ServletProcessor servletProcessor = new ServletProcessor();
+                    servletProcessor.process(request, response);
+                } else {
+                    String responseStr = "HTTP/1.1 401 Forbidden\r\n" +
+                            "Content-Type: text/html\r\n" +
+                            "Content-Length: 18\r\n" +
+                            "\r\n" +
+                            "<h1>Forbidden</h1>";
+                    socket.getOutputStream().write(responseStr.getBytes());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
