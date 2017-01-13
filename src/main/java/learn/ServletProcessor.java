@@ -13,7 +13,7 @@ public class ServletProcessor {
     private void createClassLoader() {
         try {
             URL[] urls = new URL[1];
-            File classPath = new File(Constants.WEB_ROOT+"tomcatLearn\\target\\classes\\learn");
+            File classPath = new File(Constants.WEB_ROOT+"tomcatLearn\\target\\classes");
             String repository = (new URL("File", null, classPath.getCanonicalPath() +
                     File.separator)).toString();
             urls[0] = new URL(null, repository, (URLStreamHandler)null);
@@ -26,13 +26,11 @@ public class ServletProcessor {
     public void process(Request request, Response response) {
         String uri = request.getUri();
         String servletName = uri.substring(uri.lastIndexOf("/") + 1);
-        System.out.println(loader.getURLs()+":"+servletName);
         createClassLoader();
 
         Class servletClass;
         try{
-
-            servletClass = loader.loadClass(servletName);
+            servletClass = loader.loadClass("learn."+servletName);
             Servlet servlet = (Servlet)servletClass.newInstance();
             servlet.service(request, response);
         } catch (ClassNotFoundException c) {

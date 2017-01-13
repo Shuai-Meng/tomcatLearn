@@ -17,10 +17,9 @@ public class SimpleServlet implements Servlet{
     }
 
     public void service(ServletRequest req, ServletResponse response) throws ServletException, IOException {
-        System.out.println("from service");
         PrintWriter out = response.getWriter();
         out.println("Hello. Roses are red.");
-        out.print("Violets are blue.");
+        out.close();
     }
 
     public String getServletInfo() {

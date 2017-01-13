@@ -40,7 +40,6 @@ public class Request implements ServletRequest {
         int firstSpace = request.indexOf(" ");
         if(firstSpace > -1) {
             int secondSpace = request.indexOf(" ", firstSpace + 1);
-            System.out.println(firstSpace+":"+secondSpace);
             if(secondSpace > firstSpace) {
                 uri = request.substring(firstSpace + 1, secondSpace);
                 return;

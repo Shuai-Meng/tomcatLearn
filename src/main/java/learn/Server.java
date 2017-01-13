@@ -29,6 +29,7 @@ public class Server {
                 response.setRequest(request);
 
                 String uri = request.getUri();
+                System.out.println(uri);
                 if(uri.equals("/SHUT_DOWN")) {
                     socket.close();
                     return;
