@@ -2,7 +2,7 @@
  * Created by m on 16-12-26.
  */
 import org.junit.*;
-import learn.*;
+import core.*;
 
 public class TestClient {
 

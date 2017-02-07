@@ -1,6 +1,9 @@
-package learn;
+package core;
+
+import connector.Constants;
 
 import javax.servlet.*;
+import javax.servlet.http.*;
 import java.io.*;
 import java.net.*;
 
@@ -23,14 +26,14 @@ public class ServletProcessor {
         }
     }
 
-    public void process(Request request, Response response) {
-        String uri = request.getUri();
+    public void process(HttpServletRequest request, HttpServletResponse response) {
+        String uri = request.getRequestURI();
         String servletName = uri.substring(uri.lastIndexOf("/") + 1);
         createClassLoader();
 
         Class servletClass;
         try{
-            servletClass = loader.loadClass("learn."+servletName);
+            servletClass = loader.loadClass("core."+servletName);
             Servlet servlet = (Servlet)servletClass.newInstance();
             servlet.service(request, response);
         } catch (ClassNotFoundException c) {

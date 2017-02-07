@@ -32,7 +32,7 @@ public class HttpConnector implements Runnable {
                 continue;
             }
 
-            HttpProcessor httpProcessor = new HttpProcessor(this);
+            HttpProcessor httpProcessor = new HttpProcessor();//TODO
             httpProcessor.process(socket);
         }
     }

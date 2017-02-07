@@ -1,4 +1,4 @@
-package learn;
+package core;
 
 import javax.servlet.*;
 import java.io.*;

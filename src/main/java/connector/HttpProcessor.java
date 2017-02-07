@@ -1,12 +1,13 @@
 package connector;
 
-import learn.ServletProcessor;
+import core.*;
+import util.RequestUtil;
+import util.StringManager;
 
 import javax.servlet.ServletException;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.servlet.http.Cookie;
+import java.io.*;
 import java.net.Socket;
-import org.apache.catalina.connector.http.
 
 /**
  * Created by shuaimeng2 on 2017/1/16.
@@ -15,6 +16,7 @@ public class HttpProcessor {
     private HttpRequest request;
     private HttpResponse response;
     private HttpRequestLine requestLine = new HttpRequestLine();
+    StringManager sm = StringManager.getManager("connector");
 
     public void process(Socket socket) {
         SocketInputStream socketInputStream = null;
@@ -61,6 +63,7 @@ public class HttpProcessor {
             throw new ServletException("Missing HTTP request URI");
         }
 
+        // Parse any query parameters out of the request URI
         int question = requestLine.indexOf("?");
         if (question >= 0) {
             request.setQueryString(new String(requestLine.uri, question + 1, requestLine.uriEnd - question - 1));
@@ -70,6 +73,7 @@ public class HttpProcessor {
             uri = new String(requestLine.uri, 0, requestLine.uriEnd);
         }
 
+        // Checking for an absolute URI (with the HTTP protocol)
         if (!uri.startsWith("/")) {
             int pos = uri.indexOf("://");
 
@@ -85,7 +89,7 @@ public class HttpProcessor {
         String match = ";jsessionid=";
         int semicolon = uri.indexOf(match);
         if (semicolon >= 0) {
-            String rest = uri.substring(semicolon + match,length());
+            String rest = uri.substring(semicolon + match.length());
             int semicolon2 = rest.indexOf(';');
             if (semicolon2 >= 0) {
                 request.setRequestedSessionId(rest.substring(0, semicolon2));
@@ -103,7 +107,7 @@ public class HttpProcessor {
 
         String normalizedUri = normalize(uri);
 
-        ((HttpRequest) request).setMethod(method);
+        ((HttpRequest) request).setMethod(method);//TODO 为啥要强制转换？
         request.setProtocol(protocol);
         if (normalizedUri != null)
             ((HttpRequest) request).setRequestURI(normalizedUri);
@@ -114,23 +118,51 @@ public class HttpProcessor {
             throw new ServletException("Invalid URI: " + uri + "'");
     }
 
-    private void parseHeaders(SocketInputStream socketInputStream) {
-        HttpHeader header = new HttpHeader();
-        socketInputStream.readHeader(header);
+    private void parseHeaders(SocketInputStream socketInputStream) throws IOException, ServletException {
+        while (true) {
+            HttpHeader header = new HttpHeader();
+            socketInputStream.readHeader(header);
 
-        if (header.nameEnd == 0) {
-            if (header.valueEnd == 0) {
-                return;
-            } else {
-                throw new ServletException(sm.getString("httpProcessor.parseHeaders.colon"));
+            if (header.nameEnd == 0) {
+                if (header.valueEnd == 0) {
+                    return;
+                } else {
+                    throw new ServletException(sm.getString("httpProcessor.parseHeaders.colon"));
+                }
+            }
+            String name = new String(header.name, 0, header.nameEnd);
+            String value = new String(header.value, 0, header.valueEnd);
+            request.addHeader(name, value);
+
+            if (name.equals("cookie")) {
+                if (header.equals(DefaultHeaders.COOKIE_NAME)) {
+                    Cookie cookies[] = RequestUtil.parseCookieHeader(value);
+                    for (int i = 0; i < cookies.length; i++) {
+                        if (cookies[i].getName().equals("jsessionid")) {
+                            if (!request.isRequestedSessionIdFromCookie()) {
+                                request.setRequestedSessionId(cookies[i].getValue());
+                                request.setRequestedSessionCookie(true);
+                                request.setRequestedSessionURL(false);
+                            }
+                        }
+                        request.addCookie(cookies[i]);
+                    }
+                }
+            } else if (name.equals("content-length")) {
+                int n = -1;
+                try {
+                    n = Integer.parseInt(value);
+                } catch (Exception e) {
+                    throw new ServletException(sm.getString("httpProcessor.parseHeaders.contentLength"));
+                }
+                request.setContentLength(n);
+            } else if (name.equals("content-type")) {
+                request.setContentType(value);
             }
         }
-        String name = new String(header.name, 0, header.nameEnd);
-        String value = new String(header.value, 0, header.valueEnd);
-        request.addHeader(name, value);
     }
 
-    private void normalize(String uri) {
-
+    private String normalize(String uri) {
+        return uri;//TODO
     }
 }

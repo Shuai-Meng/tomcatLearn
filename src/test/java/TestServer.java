@@ -1,4 +1,4 @@
-import learn.Server;
+import core.Server;
 import org.junit.Test;
 
 /**

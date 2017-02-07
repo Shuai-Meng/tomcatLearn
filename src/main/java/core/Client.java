@@ -1,4 +1,4 @@
-package learn;
+package core;
 
 import java.io.*;
 import java.net.Socket;
