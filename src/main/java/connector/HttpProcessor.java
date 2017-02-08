@@ -105,17 +105,15 @@ public class HttpProcessor {
             request.setRequestedSessionURL(false);
         }
 
-        String normalizedUri = normalize(uri);
-
-        ((HttpRequest) request).setMethod(method);//TODO 为啥要强制转换？
+        request.setMethod(method);
         request.setProtocol(protocol);
+        String normalizedUri = normalize(uri);
         if (normalizedUri != null)
-            ((HttpRequest) request).setRequestURI(normalizedUri);
-        else
-            ((HttpRequest) request).setRequestURI(uri);
-
-        if (normalizedUri == null)
-            throw new ServletException("Invalid URI: " + uri + "'");
+            request.setRequestURI(normalizedUri);
+        else {
+            request.setRequestURI(uri);
+            throw new ServletException("Invalid URI: '" + uri + "'");
+        }
     }
 
     private void parseHeaders(SocketInputStream socketInputStream) throws IOException, ServletException {
@@ -132,7 +130,6 @@ public class HttpProcessor {
             }
             String name = new String(header.name, 0, header.nameEnd);
             String value = new String(header.value, 0, header.valueEnd);
-            request.addHeader(name, value);
 
             if (name.equals("cookie")) {
                 if (header.equals(DefaultHeaders.COOKIE_NAME)) {
@@ -156,9 +153,8 @@ public class HttpProcessor {
                     throw new ServletException(sm.getString("httpProcessor.parseHeaders.contentLength"));
                 }
                 request.setContentLength(n);
-            } else if (name.equals("content-type")) {
-                request.setContentType(value);
-            }
+            } else
+                request.addHeader(name, value);
         }
     }
 

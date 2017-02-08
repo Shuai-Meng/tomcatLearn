@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Locale;
 
@@ -109,7 +110,12 @@ public class HttpResponse implements HttpServletResponse {
     }
 
     public PrintWriter getWriter() throws IOException {
-        return null;
+        ResponseStream newStream = new ResponseStream(this);
+        newStream.setCommit(false);
+        OutputStreamWriter osr =
+                new OutputStreamWriter(newStream, getCharacterEncoding());
+        writer = new ResponseWriter(osr);
+        return writer;
     }
 
     public void setCharacterEncoding(String charset) {
